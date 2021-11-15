@@ -1,75 +1,35 @@
 // Module dependency
-const Contentstack = require('contentstack');
+import axios from 'axios';
 
-const Stack = Contentstack.Stack(
-  process.env.VUE_APP_CONTENTSTACK_API_KEY,
-  process.env.VUE_APP_CONTENTSTACK_DELIVERY_TOKEN,
-  process.env.VUE_APP_CONTENTSTACK_ENVIRONMENT,
-  process.env.VUE_APP_CONTENTSTACK_REGION
-    ? process.env.VUE_APP_CONTENTSTACK_REGION
-    : '',
-);
+const headers = {
+  api_key: process.env.VUE_APP_CONTENTSTACK_API_KEY,
+  access_token: process.env.VUE_APP_CONTENTSTACK_DELIVERY_TOKEN,
+};
 
+// function for getting single entie using Content Delivery API
 export default {
-  /**
-   * This function fetches specific entry which matches params url using where clause
-   *
-   * @param {*provides content-type uid} contentTypeUid String
-   * @param {*provides url to search specific entry} entryUrl String
-   * @param {*provides reference field path as an array or a string} referencedFieldPath
-   * Array e.g.[`author`, `related_post`] | String e.g. 'related_pages'
-   *
-   * */
-
-  getEntryByUrl(contentTypeUid, entryUrl, referencedFieldPath) {
-    return new Promise((resolve, reject) => {
-      const query = Stack.ContentType(contentTypeUid).Query();
-      if (referencedFieldPath) {
-        query.includeReference(referencedFieldPath);
-      }
-      query.toJSON();
-      const data = query.where('url', `${entryUrl}`).find();
-      data.then(
-        (result) => {
-          resolve(result[0]);
-        },
-        (error) => {
-          reject(error);
-        },
-      );
-    });
+  async getEntrie(contentTypeUid, title) {
+    const book = await axios.get(`${process.env.VUE_APP_CONTENTSTACK_BASE_URL}/content_types/${contentTypeUid}/entries?environment=${process.env.VUE_APP_CONTENTSTACK_ENVIRONMENT}&query={"title":"${title}"}`, {
+      headers,
+    }).then(
+      (response) => response.data.entries[0],
+      (error) => {
+        console.log(error);
+      },
+    );
+    return book;
   },
 
-  /**
-   * This function fetches all the entries for a specific content-type
-   *
-   * @param {*provides content-type uid} contentTypeUid String
-   * @param {*provides reference field path as an array or a string} referencedFieldPath
-   * Array e.g.[`author`, `related_post`] | String e.g. 'related_pages'
-   *
-   * */
-
-  getEntries({
-    contentTypeUid, referencedFieldPath, skip, limit,
-  }) {
-    return new Promise((resolve, reject) => {
-      const query = Stack.ContentType(contentTypeUid).Query();
-      if (referencedFieldPath) query.includeReference(referencedFieldPath);
-      query
-        .toJSON()
-        .includeCount()
-        .skip(skip)
-        .limit(limit)
-        .find()
-        .then(
-          (result) => {
-            resolve(result);
-          },
-          (error) => {
-            console.log(error);
-            reject(error);
-          },
-        );
-    });
+  // function for getting single asset using Content Delivery API
+  async getAsset(assetId) {
+    const asset = await axios.get(`${process.env.VUE_APP_CONTENTSTACK_BASE_URL}/assets/${assetId}?environment=${process.env.VUE_APP_CONTENTSTACK_ENVIRONMENT}`, {
+      headers,
+    }).then(
+      (response) => response.data.asset,
+      (error) => {
+        console.log(error);
+      },
+    );
+    return asset;
   },
 };
