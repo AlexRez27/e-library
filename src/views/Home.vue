@@ -1,30 +1,34 @@
 <template>
   <div class="home">
-    <h1>E-library App</h1>
-      <BookItem
-        class="bookitem"
-        @click.prevent="toSingleBook({ title: book.title, limit, skip })"
-        v-for="book of all_book_list.items"
-        :key="book.title"
-        :book="{
-          title: book.title,
-          url: book.posterConnection.edges[0].node.url,
-          urlTitle: book.posterConnection.edges[0].node.title,
-        }"
-      />
+    <div
+      class="home__banner"
+      :style="{
+        backgroundImage: `url('${getBanner().url}?auto=webp ')`,
+      }"
+    >
+      <h1 class="home__title">{{ all_home.items[0].title }}</h1>
+    </div>
+    <BookItem
+      class="home__bookitem"
+      @click.prevent="toSingleBook({ uid: book.system.uid, limit, skip })"
+      v-for="book of all_book.items"
+      :key="book.title"
+      :book="getBook(book)"
+    />
     <Pagination
       @get-data="getData"
       :size="limit"
-      :totalpages="all_book_list.total"
+      :totalpages="all_book.total"
       :initialPageNumber="skip / limit"
     />
   </div>
 </template>
 
 <script>
-import gql from 'graphql-tag';
+import { ALL_BOOK, ALL_HOME } from '@/apollo/queries';
 import BookItem from '@/components/BookItem.vue';
 import Pagination from '@/components/Pagination.vue';
+import { getImage, getBookInfo } from '@/common';
 
 export default {
   components: {
@@ -34,15 +38,16 @@ export default {
   data() {
     return {
       // Default values for graphql
-      all_book_list: {
+      all_book: {
         items: [
           {
             title: '',
-            posterConnection: {
+            cover_imageConnection: {
               edges: [
                 {
                   node: {
                     url: null,
+                    title: '',
                   },
                 },
               ],
@@ -50,6 +55,23 @@ export default {
           },
         ],
         total: 0,
+      },
+      all_home: {
+        items: [
+          {
+            title: '',
+            hero_bannerConnection: {
+              edges: [
+                {
+                  node: {
+                    title: '',
+                    url: '',
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
       // take limit and skip parameters from router, if not, then 3 and 0
       limit: +this.$route.params.limit || 3,
@@ -72,37 +94,23 @@ export default {
     async getData(params) {
       this.limit = params.limit;
       this.skip = params.skip;
-      await this.$apollo.queries.all_book_list.refetch(params);
+      await this.$apollo.queries.all_book.refetch(params);
     },
     // go to book lending page
     toSingleBook(param) {
       this.$router.push({ name: 'Book', params: param });
     },
+    getBook(obj) {
+      return getBookInfo(obj);
+    },
+    getBanner() {
+      return getImage(this.all_home.items[0].hero_bannerConnection);
+    },
   },
   // apollo graphql query
   apollo: {
-    all_book_list: {
-      query: gql`
-        query all_book_list($limit: Int!, $skip: Int!) {
-          all_book_list(limit: $limit, skip: $skip) {
-            total
-            items {
-              title
-              posterConnection {
-                edges {
-                  node {
-                    title
-                    url(transform: { height: "150", width: "100" })
-                  }
-                }
-              }
-              system {
-                uid
-              }
-            }
-          }
-        }
-      `,
+    all_book: {
+      query: ALL_BOOK,
       // variables function to make skip and limit reactive
       variables() {
         return {
@@ -111,17 +119,32 @@ export default {
         };
       },
     },
+    all_home: {
+      query: ALL_HOME,
+    },
   },
 };
 </script>
 
-<style>
+<style lang='scss' scoped>
 .home {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.bookitem {
-  width: 100%;
+  &__title {
+    color: #fff;
+  }
+  &__banner {
+    height: 200px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  &__bookitem {
+    width: 100%;
+  }
 }
 </style>

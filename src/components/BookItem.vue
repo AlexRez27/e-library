@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <div class="collection list">
-      <a class="collection-item">
-        <img :src="book.url" :alt="book.title" />
-        <h5>{{ book.title }}</h5>
-      </a>
-    </div>
+  <div class="collection list">
+    <a class="collection-item">
+      <img :src="book.url" :alt="book.title" />
+      <h5>{{ book.title }}</h5>
+    </a>
   </div>
 </template>
 
@@ -27,9 +25,6 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  &__item {
-    text-align: center;
-  }
   & a {
     text-align: center;
     width: 100%;

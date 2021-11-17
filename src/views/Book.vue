@@ -6,8 +6,8 @@
         v-else
         height="600"
         width="500"
-        :src="poster.url"
-        :alt="poster.title"
+        :src="`${book.cover_image.url}?auto=webp`"
+        :alt="book.cover_image.title"
       />
     </div>
     <div class="info">
@@ -15,9 +15,9 @@
       <span> {{ book.number_of_pages }} pages </span>
       <p class="flow-text">{{ book.description_new }}</p>
     </div>
-    <button @click="toHomePage" class="waves-effect waves-light btn-large">
+    <a @click.prevent="toHomePage" class="waves-effect waves-light btn-large">
       Home
-    </button>
+    </a>
   </div>
 </template>
 
@@ -28,14 +28,12 @@ export default {
   name: 'Book',
   data() {
     return {
-      poster: {},
       book: {},
       loading: true,
     };
   },
   async mounted() {
-    this.book = await Stack.getEntrie('book', this.$route.params.title); // get single book entrie
-    this.poster = await Stack.getAsset(this.book.cover_image.uid); // get poster photo
+    this.book = await Stack.getEntrie('book', this.$route.params.uid); // get single book entrie
     this.loading = false;
   },
   methods: {

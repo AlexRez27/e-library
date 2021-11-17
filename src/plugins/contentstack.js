@@ -6,13 +6,13 @@ const headers = {
   access_token: process.env.VUE_APP_CONTENTSTACK_DELIVERY_TOKEN,
 };
 
-// function for getting single entie using Content Delivery API
+// function for getting single entrie using Content Delivery API
 export default {
-  async getEntrie(contentTypeUid, title) {
-    const book = await axios.get(`${process.env.VUE_APP_CONTENTSTACK_BASE_URL}/content_types/${contentTypeUid}/entries?environment=${process.env.VUE_APP_CONTENTSTACK_ENVIRONMENT}&query={"title":"${title}"}`, {
+  async getEntrie(contentTypeUid, entryUid) {
+    const book = await axios.get(`${process.env.VUE_APP_CONTENTSTACK_BASE_URL}/content_types/${contentTypeUid}/entries/${entryUid}?environment=${process.env.VUE_APP_CONTENTSTACK_ENVIRONMENT}`, {
       headers,
     }).then(
-      (response) => response.data.entries[0],
+      (response) => response.data.entry,
       (error) => {
         console.log(error);
       },
@@ -20,16 +20,14 @@ export default {
     return book;
   },
 
-  // function for getting single asset using Content Delivery API
-  async getAsset(assetId) {
-    const asset = await axios.get(`${process.env.VUE_APP_CONTENTSTACK_BASE_URL}/assets/${assetId}?environment=${process.env.VUE_APP_CONTENTSTACK_ENVIRONMENT}`, {
-      headers,
-    }).then(
-      (response) => response.data.asset,
-      (error) => {
-        console.log(error);
-      },
-    );
-    return asset;
-  },
+  // function for getting single Image using Content Delivery API
+  // async getImage(url) {
+  //   const image = await axios.get(`${url}?auto=webp`).then(
+  //     (response) => response,
+  //     (error) => {
+  //       console.log(error);
+  //     },
+  //   );
+  //   return image;
+  // },
 };

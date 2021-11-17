@@ -57,9 +57,7 @@ export default {
   },
   computed: {
     pageCount() {
-      const l = this.totalpages;
-      const s = this.size;
-      return Math.ceil(l / s);
+      return Math.ceil(this.totalpages / this.size);
     },
   },
 };
